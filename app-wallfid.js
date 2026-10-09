@@ -80,7 +80,7 @@
     g.strokeStyle=pattern.custom?'#c9bddd':'#a89db7';g.lineWidth=unit*.15;g.strokeRect(unit*.15,unit*.15,W-unit*.3,H-unit*.3);
   }
   function render(){
-    const p=state.pattern,c=$('patternCanvas');c.width=Math.max(4,Math.round(840*p.width/Math.max(p.width,p.height)));c.height=Math.round(c.width*p.height/p.width);
+    const p=state.pattern,c=$('patternCanvas'),side=state.view==='numbers'?Math.min(4000,Math.max(840,Math.max(p.cols,p.rows)*28)):840;c.width=Math.max(4,Math.round(side*p.width/Math.max(p.width,p.height)));c.height=Math.round(c.width*p.height/p.width);
     $('canvasScroll').style.setProperty('--pattern-ratio',p.width/p.height);
     if(state.compare){const g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);g.drawImage(appliedSource,0,0,c.width,c.height);return;}
     drawPattern(c,p,state.view,state.highlight,$('showGrid').checked);
