@@ -2,6 +2,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const context={window:{}};vm.runInNewContext(fs.readFileSync(__dirname+'/languages-data.js','utf8'),context);
 const data=context.window.WallfidLanguages,keys=Object.keys(data.translations.en).sort();
+for(const key of ['Picture layout','Keep whole image','Fill board / crop','Enhance dark photo colours','Reading your image…','Matching your 40 colours and numbers…','Adjust picture'])assert(keys.includes(key),'new workflow copy covered: '+key);
 const eu=['bg','hr','cs','da','nl','en','et','fi','fr','de','el','hu','ga','it','lv','lt','mt','pl','pt','ro','sk','sl','es','sv'];
 assert.equal(data.languages.length,28);assert.equal(new Set(data.languages.map(l=>l.code)).size,28);
 for(const code of [...eu,'zh-Hans','zh-Hant','ja','ko'])assert(data.translations[code],code);

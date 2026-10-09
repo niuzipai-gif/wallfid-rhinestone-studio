@@ -6,7 +6,7 @@
   function refresh(){
     const pending=!$('pendingBadge').hidden;
     next.textContent=current==='setup'?(pending?'Update my pattern →':'See my pattern →'):current==='preview'?'Find my colours →':'Save numbered pattern ↓';
-    next.disabled=current==='materials'&&$('exportPng').disabled;
+    next.disabled=workspace.getAttribute('aria-busy')==='true'||(current==='materials'&&$('exportPng').disabled);
     back.hidden=current==='setup';
     $('mobileShowColour').disabled=$('clearHighlight').disabled;
     $('mobileColourNotice').textContent=$('clearHighlight').disabled?'Choose a colour below to find its compartment.':$('boxPosition').textContent;
@@ -17,11 +17,14 @@
     current=stage;workspace.dataset.mobilePanel=stage;
     document.querySelectorAll('[data-mobile-step]').forEach(b=>{if(b.dataset.mobileStep===stage)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');});
     refresh();
-    if(phone.matches&&scroll){document.querySelector('.mobile-steps').scrollIntoView({block:'start',behavior:'auto'});const panel=workspace.querySelector('.'+({setup:'settings',preview:'preview',materials:'materials'}[stage]));panel.setAttribute('tabindex','-1');panel.focus({preventScroll:true});}
+    if(phone.matches&&scroll){workspace.scrollIntoView({block:'start',behavior:'auto'});const panel=workspace.querySelector('.'+({setup:'settings',preview:'preview',materials:'materials'}[stage]));panel.setAttribute('tabindex','-1');panel.focus({preventScroll:true});}
   }
   document.querySelectorAll('[data-mobile-step]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.mobileStep)));
   next.addEventListener('click',()=>{if(current==='materials'){$('exportPng').click();return;}if(current==='setup'&&!$('pendingBadge').hidden){$('generateButton').click();if(!$('pendingBadge').hidden)return;}show(stages[stages.indexOf(current)+1]);});
   back.addEventListener('click',()=>show(stages[Math.max(0,stages.indexOf(current)-1)]));
+  document.addEventListener('wallfid:busy',refresh);
+  document.addEventListener('wallfid:pattern-ready',()=>{show('preview');if(!phone.matches){$('patternCanvas').scrollIntoView({block:'center'});}});
+  $('adjustPicture').addEventListener('click',()=>{show('setup',false);$('cropOptions').open=true;$('framingMode').scrollIntoView({block:'center'});$('framingMode').focus({preventScroll:true});});
   $('mobileHelp').addEventListener('click',()=>$('helpDialog').showModal());
   $('mobileShowColour').addEventListener('click',()=>{$('workspace').querySelector('[data-view="numbers"]').click();show('preview');});
   $('colorList').addEventListener('click',refresh);
