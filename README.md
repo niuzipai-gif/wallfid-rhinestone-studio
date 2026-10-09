@@ -1,6 +1,6 @@
 # WALLFID Rhinestone Studio
 
-A public design preview and browser-based rhinestone pattern maker. Choose a square 50/80/100 mm acrylic board, upload a picture, and make a numbered guide using the fixed 40-colour palette.
+A public design preview and browser-based rhinestone pattern maker. Choose a sharp-corner square 50/80/100 mm acrylic board, or enter a custom width/height from 12 to 600 mm for your own surface. Round rhinestones have a fixed 3 mm diameter; patterns use the fixed 40-colour palette.
 
 - Photos are processed locally in the browser. There is no upload service, account or image-generation API on the website.
 - Numbered PNG, quantity CSV and actual-size print/PDF exports use the same compartment numbers: five rows, eight columns, left to right.
@@ -9,15 +9,16 @@ A public design preview and browser-based rhinestone pattern maker. Choose a squ
 - New images keep their original proportions by default, with transparent uncovered edges that do not consume stones. Fill-board cropping, scale and positioning are optional. Dark-photo enhancement preserves small light colours during cell sampling and can be turned off; bright illustrations retain their natural colours.
 - A header language button offers the EU's 24 official languages, Simplified/Traditional Chinese, Japanese and Korean (28 total). The selected language is saved locally; changing it preserves the active picture, board and pattern. Static initial translations cover interface copy, dynamic quantities, guides and PNG/print text. They are initial translations awaiting native-speaker proofreading, not certified localisation.
 - Language switching uses bundled dictionaries; it does not contact a translation service or transmit visitor images. The hero pen's two blue protrusions have been removed from the illustrative product image.
-- The colour values are estimates from a kit reference image, awaiting physical calibration. Stock quantities have not been entered. Board spacing/corners and print scale require physical checks.
+- The colour values are estimates from a kit reference image, awaiting physical calibration. Stock quantities have not been entered. The supplied board corners are square. Centre spacing defaults to 3 mm and can be increased; kit boards reserve 3 mm at each edge. Check print scale before making.
 - Generated hero and process images are illustrative concepts. The process illustration's paper grid is not a placement template.
+- Custom patterns support image silhouettes, rectangles, ovals and hearts. Edge-connected white background removal preserves enclosed white subject details. Subject trimming and optional fine-outline emphasis improve clarity. A4 print tiles cover every grid cell exactly once; the legend includes the complete quantities. Width/height in CSV and PNG are the same physical dimensions as the preview.
 - At the current 3 mm pitch the largest board has 31 stones across. Fine lettering and photographic details simplify substantially.
 
 ## Hosting
 
 GitHub Pages publishes this repository's `main` branch from `/`. All site paths are relative and work under a project subdirectory. `.nojekyll` serves static files directly. No build dependencies are required.
 
-Local preview: `python -m http.server 8766`. Checks: `node sampling-wallfid.test.cjs`, `node image-flow.test.cjs` and `node languages.test.cjs`.
+Local preview: `python -m http.server 8766`. Checks: `node sampling-wallfid.test.cjs`, `node image-flow.test.cjs`, `node custom-pattern.test.cjs` and `node languages.test.cjs`.
 
 ## Assets
 

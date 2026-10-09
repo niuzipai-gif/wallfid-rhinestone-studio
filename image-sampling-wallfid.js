@@ -14,10 +14,10 @@
     return out;
   }
   // Draw the whole source without stretching; uncovered board areas stay transparent.
-  function framing(width,height,side,mode='contain',zoom=1,px=50,py=50){
-    const scale=(mode==='cover'?Math.max(side/width,side/height):Math.min(side/width,side/height))*zoom;
+  function framing(width,height,side,mode='contain',zoom=1,px=50,py=50,targetHeight=side){
+    const scale=(mode==='cover'?Math.max(side/width,targetHeight/height):Math.min(side/width,targetHeight/height))*zoom;
     const w=width*scale,h=height*scale;
-    return {x:(side-w)*px/100,y:(side-h)*py/100,width:w,height:h};
+    return {x:(side-w)*px/100,y:(targetHeight-h)*py/100,width:w,height:h};
   }
   // Alpha-aware cell sampling. Brightness-weighted colour keeps small lights from
   // disappearing into dark surroundings; it never adds pixels or palette colours.
@@ -46,5 +46,41 @@
       for(let k=0;k<3;k++)out[i*4+k]=c[k];out[i*4+3]=255;
     });return out;
   }
-  const api={withoutWhite,framing,photo};root.WallfidSampler=api;if(typeof module!=='undefined')module.exports=api;
+  function subject(rgba,width,height,remove=true,trim=true){
+    const out=new Uint8ClampedArray(rgba),seen=new Uint8Array(width*height),queue=new Int32Array(width*height);let head=0,tail=0;
+    const background=k=>{const j=k*4;return out[j+3]<128||(Math.min(out[j],out[j+1],out[j+2])>=238&&Math.max(out[j],out[j+1],out[j+2])-Math.min(out[j],out[j+1],out[j+2])<18);};
+    const visit=k=>{if(!seen[k]&&background(k)){seen[k]=1;queue[tail++]=k;}};
+    if(remove){
+      for(let x=0;x<width;x++){visit(x);visit((height-1)*width+x);}for(let y=0;y<height;y++){visit(y*width);visit(y*width+width-1);}
+      while(head<tail){const k=queue[head++],x=k%width,y=Math.floor(k/width);out[k*4+3]=0;if(x)visit(k-1);if(x<width-1)visit(k+1);if(y)visit(k-width);if(y<height-1)visit(k+width);}
+    }
+    let left=width,top=height,right=-1,bottom=-1;
+    for(let y=0;y<height;y++)for(let x=0;x<width;x++)if(out[(y*width+x)*4+3]>=128){left=Math.min(left,x);top=Math.min(top,y);right=Math.max(right,x);bottom=Math.max(bottom,y);}
+    if(!trim||right<left)return {rgba:out,x:0,y:0,width,height,removed:tail};
+    const pad=Math.ceil(Math.max(right-left,bottom-top)*.012);left=Math.max(0,left-pad);top=Math.max(0,top-pad);right=Math.min(width-1,right+pad);bottom=Math.min(height-1,bottom+pad);
+    return {rgba:out,x:left,y:top,width:right-left+1,height:bottom-top+1,removed:tail};
+  }
+  function sample(rgba,width,height,spec,{enhance=false,outlines=true}={}){
+    const {cols,rows}=spec,out=new Uint8ClampedArray(cols*rows*4);let light=0,alpha=0;
+    for(let j=0;j<rgba.length;j+=4){const a=rgba[j+3]/255;light+=(.2126*rgba[j]+.7152*rgba[j+1]+.0722*rgba[j+2])*a;alpha+=a;}
+    const dark=alpha&&light/alpha<75;
+    for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
+      const x0=Math.max(0,Math.floor((spec.offsetX+col*spec.pitch)/spec.width*width)),x1=Math.min(width,Math.ceil((spec.offsetX+(col+1)*spec.pitch)/spec.width*width));
+      const y0=Math.max(0,Math.floor((spec.offsetY+row*spec.pitch)/spec.height*height)),y1=Math.min(height,Math.ceil((spec.offsetY+(row+1)*spec.pitch)/spec.height*height));
+      const sums=Array(3).fill(0),bright=Array(3).fill(0),ink=Array(3).fill(0);let aSum=0,bWeight=0,inkA=0,paper=0;
+      for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
+        const j=(y*width+x)*4,a=rgba[j+3]/255;if(!a)continue;
+        const c=[rgba[j],rgba[j+1],rgba[j+2]],lum=.2126*c[0]+.7152*c[1]+.0722*c[2],weight=(.08+(Math.max(...c)/255)**2)*a;
+        aSum+=a;bWeight+=weight;for(let i=0;i<3;i++){sums[i]+=c[i]*a;bright[i]+=c[i]*weight;}
+        if(lum<105){inkA+=a;for(let i=0;i<3;i++)ink[i]+=c[i]*a;}if(Math.min(...c)>205)paper+=a;
+      }
+      if(!aSum||aSum/((x1-x0)*(y1-y0))<.35)continue;
+      let c=sums.map(v=>v/aSum);
+      // Preserve dark printed strokes against white subject areas; do not erase the white tile itself.
+      if(outlines&&!dark&&inkA/aSum>=.10&&paper/aSum>=.42)c=ink.map(v=>v/inkA);
+      if(enhance&&dark){c=c.map((v,i)=>v*.25+bright[i]/bWeight*.75);const max=Math.max(...c),sat=max?(max-Math.min(...c))/max:0,gamma=sat>.28?.55:.85,gain=max?255*(max/255)**gamma/max:1;c=c.map(v=>v*gain);}
+      const k=(row*cols+col)*4;for(let i=0;i<3;i++)out[k+i]=c[i];out[k+3]=255;
+    }return out;
+  }
+  const api={withoutWhite,framing,photo,subject,sample};root.WallfidSampler=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
