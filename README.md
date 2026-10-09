@@ -4,6 +4,7 @@ A public design preview and browser-based rhinestone pattern maker. Choose a squ
 
 - Photos are processed locally in the browser. There is no upload service, account or image-generation API on the website.
 - Numbered PNG, quantity CSV and actual-size print/PDF exports use the same compartment numbers: five rows, eight columns, left to right.
+- Phone-first flow: Set up → Pattern → Colours, with one persistent primary action. Crop/spacing controls and the full 40-compartment box can be expanded when needed. Desktop keeps the full workspace.
 - The colour values are estimates from a kit reference image, awaiting physical calibration. Stock quantities have not been entered. Board spacing/corners and print scale require physical checks.
 - Generated hero and process images are illustrative concepts. The process illustration's paper grid is not a placement template.
 - At the current 3 mm pitch the largest board has 31 stones across. Fine lettering and photographic details simplify substantially.
