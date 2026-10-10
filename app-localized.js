@@ -65,11 +65,13 @@
     canvas.height=Math.max(1,Math.round(canvas.width*pattern.height/pattern.width));
     const g=canvas.getContext('2d'),W=canvas.width,H=canvas.height,unit=W/pattern.width,step=pattern.pitch*unit,ox=pattern.offsetX*unit,oy=pattern.offsetY*unit;
     g.clearRect(0,0,W,H);g.fillStyle='#ffffff';g.fillRect(0,0,W,H);
+    // Cache only within this render: at most 40 identical faceted sprites.
+    const facets=new Map(),facetSize=pattern.diameter*unit,padding=Math.ceil(facetSize*.2+2);
     pattern.cells.forEach((i,k)=>{
       const x=k%pattern.cols,y=Math.floor(k/pattern.cols),px=ox+(x+.5)*step,py=oy+(y+.5)*step;
       if(i<0){if(view==='numbers'){g.strokeStyle='#ede8ef';g.lineWidth=.5;g.strokeRect(px-step/2,py-step/2,step,step);}return;}
       const color=palette[i];g.globalAlpha=highlight!==null&&highlight!==i?.15:1;
-      if(view==='drills'){drawFacet(g,px,py,pattern.diameter*unit,color.hex);}
+      if(view==='drills'){let tile=facets.get(i);if(!tile){tile=document.createElement('canvas');tile.width=tile.height=Math.ceil(facetSize+padding*2);drawFacet(tile.getContext('2d'),tile.width/2,tile.height/2,facetSize,color.hex);facets.set(i,tile);}g.drawImage(tile,px-tile.width/2,py-tile.height/2);}
       else{g.fillStyle=view==='numbers'?color.hex+'35':color.hex;g.fillRect(px-step/2,py-step/2,step,step);if(view==='numbers'){g.strokeStyle='#bdb5ac';g.lineWidth=.6;g.strokeRect(px-step/2,py-step/2,step,step);g.fillStyle='#332e2b';g.font='600 '+step*.44+'px Arial';g.textAlign='center';g.textBaseline='middle';g.fillText(String(Number(color.id)),px,py);}}
       g.globalAlpha=1;
     });
@@ -173,6 +175,7 @@
   function applySizeChange(){fitDimensions();updateSizeNote();updateCrop();if(!busy&&state.source){zoom(1);generateApplied();}}
   document.querySelectorAll('[data-pattern-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.patternMode)));
   ['customWidth','customHeight'].forEach(id=>$(id).addEventListener('change',()=>{fitDimensions(id==='customHeight'?'height':'width');updateSizeNote();updateCrop();if(!busy)generateApplied();}));
+  ['customWidth','customHeight'].forEach(id=>$(id).addEventListener('input',()=>{updateSizeNote();markPending();}));
   $('matchAspect').addEventListener('change',applySizeChange);$('customShape').addEventListener('change',applySizeChange);
   ['skipBackground','focusSubject'].forEach(id=>$(id).addEventListener('change',()=>{state.prepared=null;fitDimensions();updateSizeNote();updateCrop();}));
   $('preserveOutlines').addEventListener('change',markPending);

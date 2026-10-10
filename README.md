@@ -14,6 +14,7 @@ A public design preview and browser-based rhinestone pattern maker. Choose a sha
 - Custom patterns support image silhouettes, rectangles, ovals and hearts. Edge-connected white background removal preserves enclosed white subject details. Subject trimming and optional fine-outline emphasis improve clarity. A4 print tiles cover every grid cell exactly once; the legend includes the complete quantities. Width/height in CSV and PNG are the same physical dimensions as the preview.
 - At the current 3 mm pitch the largest board has 31 stones across. Fine lettering and photographic details simplify substantially.
 - Board and custom-size changes immediately regenerate the pattern and quantities. The board preview also scales relative to 100 mm. Small-pattern optimisation preserves continuous ink and dominant colour clusters before matching the same fixed palette. Optional Outline style keeps strong colour boundaries and silhouette edges, leaving other cells empty; it preserves compartment IDs and shows the full-colour quantity for comparison. Fine lettering is still limited by the physical 3 mm grid.
+- Editing custom dimensions immediately invalidates old exports. Large previews reuse at most 40 same-colour faceted sprites per render rather than rebuilding each stone; physical positions and palette numbers stay identical. Printed pages use a white background.
 
 ## Hosting
 
