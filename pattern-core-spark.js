@@ -27,5 +27,18 @@
   function nearest(color){const value=lab(color);let best=0,min=Infinity;palette.forEach((c,i)=>{const d=c.lab.reduce((s,v,k)=>s+(v-value[k])**2,0);if(d<min){min=d;best=i;}});return best;}
   function quantize(rgba,spec,skipBackground=false){const {cols,rows}=spec;if(rgba.length!==cols*rows*4)throw new Error('Sample data does not match the grid');const cells=[],counts=Array(40).fill(0);for(let i=0;i<cols*rows;i++){const j=i*4,alpha=rgba[j+3]/255,color=[rgba[j],rgba[j+1],rgba[j+2]],x=i%cols,y=Math.floor(i/cols);const px=spec.offsetX+(x+.5)*spec.pitch,py=spec.offsetY+(y+.5)*spec.pitch;const blank=alpha<.5||!inside(spec,px,py)||(skipBackground&&color.every(v=>v>=238));if(blank){cells.push(-1);continue;}const index=nearest(color);cells.push(index);counts[index]++;}return {...spec,cells,counts,total:counts.reduce((a,b)=>a+b,0),used:counts.filter(Boolean).length,paletteVersion:'supplier-photo2-row-major-40-photo-estimates-v1'};}
   function printTiles(spec){const nc=Math.floor(180/spec.pitch),nr=Math.floor(210/spec.pitch),tiles=[];for(let row=0;row<spec.rows;row+=nr)for(let col=0;col<spec.cols;col+=nc)tiles.push({col,row,cols:Math.min(nc,spec.cols-col),rows:Math.min(nr,spec.rows-row)});return tiles;}
-  const api={palette,gridSpec,customSpec,diameter,inside,printTiles,nearest,quantize};root.PatternCore=api;if(typeof module!=='undefined')module.exports=api;
+  function outline(pattern){
+    const cells=pattern.cells.map((v,k)=>{
+      if(v<0)return -1;const x=k%pattern.cols,y=Math.floor(k/pattern.cols);let border=false,contrasts=0,peak=0;
+      for(const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1]]){
+        const nx=x+dx,ny=y+dy;if(nx<0||ny<0||nx>=pattern.cols||ny>=pattern.rows)continue;
+        const n=pattern.cells[ny*pattern.cols+nx];if(n<0){border=true;continue;}
+        const distance=Math.sqrt(palette[v].lab.reduce((s,c,i)=>s+(c-palette[n].lab[i])**2,0));peak=Math.max(peak,distance);if(distance>=28)contrasts++;
+      }
+      return border||contrasts>=2||peak>=50?v:-1;
+    });
+    const counts=Array(40).fill(0);cells.forEach(i=>{if(i>=0)counts[i]++;});
+    return {...pattern,cells,counts,total:counts.reduce((a,b)=>a+b,0),used:counts.filter(Boolean).length,style:'outline'};
+  }
+  const api={palette,gridSpec,customSpec,diameter,inside,printTiles,nearest,quantize,outline};root.PatternCore=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
