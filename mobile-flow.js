@@ -26,7 +26,8 @@
   document.addEventListener('wallfid:pattern-ready',()=>{show('preview');if(!phone.matches){$('patternCanvas').scrollIntoView({block:'center'});}});
   $('adjustPicture').addEventListener('click',()=>{show('setup',false);$('cropOptions').open=true;$('framingMode').scrollIntoView({block:'center'});$('framingMode').focus({preventScroll:true});});
   $('mobileHelp').addEventListener('click',()=>$('helpDialog').showModal());
-  $('mobileShowColour').addEventListener('click',()=>{$('workspace').querySelector('[data-view="numbers"]').click();show('preview');});
+  // Show the panel before measuring it for the selected colour's number-chart zoom.
+  $('mobileShowColour').addEventListener('click',()=>{show('preview');$('workspace').querySelector('[data-view="numbers"]').click();});
   $('colorList').addEventListener('click',refresh);
   $('boxGrid').addEventListener('click',refresh);
   $('clearHighlight').addEventListener('click',refresh);

@@ -3,3 +3,30 @@
 #patternStyle{width:100%;min-height:48px;padding:9px 12px;font:inherit;font-size:16px;color:#392448;border:1px solid #cdb9e2;border-radius:10px;background:white}.size-quantity{display:flex;align-items:baseline;gap:12px;margin:-10px 0 22px;padding:10px 12px;background:#f1eafa;border-radius:9px;color:#70449a}.size-quantity strong{font-size:25px;color:#402459}.size-quantity span,.style-budget{font-size:14px}.style-budget{color:#725d83;margin-top:10px}
 @media(max-width:900px){.pattern-type{margin-top:2px}.settings>.setting-section:first-of-type .hint{margin-top:10px}.canvas-scroll{max-height:65dvh}.framing-result p{font-size:14px}.photo-detail-note{font-size:14px}.stage-caption{font-size:12px}.board-stage-label{font-size:11px}.stats strong{font-size:clamp(21px,6vw,27px)}}
 @media print{html,body,#printArea,.print-sheet{background:#fff!important}.mobile-action-bar,.mobile-steps,#processingOverlay,body>footer{display:none!important}#printArea .print-sheet{break-after:page;page-break-after:always}#printArea .print-sheet:last-child{break-after:auto;page-break-after:auto}#printArea .print-board{margin:3mm 0}#printArea h1{font-size:11pt;margin-bottom:2mm}#printArea p{font-size:8pt;margin-bottom:2mm;line-height:1.25}.print-sheet img{print-color-adjust:exact;-webkit-print-color-adjust:exact}.print-legend .print-colors{grid-template-columns:repeat(3,1fr)}.print-scale{margin:2mm 0;height:2mm}}
+
+/* Audit corrections: readable instructions, visible focus, compact placement controls. */
+dialog ol{font-size:16px;line-height:1.7}#exportDescription{font-size:16px}
+dialog h2{line-height:1.25}dialog .hint{font-size:14px;color:#665474}
+.dialog-close{position:sticky;float:right;top:0;z-index:2;min-width:44px;min-height:44px;margin:-12px -8px 0 8px;background:#fff;border-radius:8px}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,#canvasScroll:focus-visible{outline:3px solid #7542b4;outline-offset:3px}
+input[aria-invalid=true]{border:2px solid #a02e42;background:#fff5f6}
+.color-info small,.color-amount small,.stats span,.board-stage-label,.stage-caption{color:#665474}
+@media(max-width:900px){
+ .settings .hint,.file-status,.sample-note,.preview-tip,.preview-caption,.photo-detail-note,.framing-result p{font-size:14px;color:#665474;line-height:1.6}
+ .mobile-only.mobile-intro span{font-size:15px;color:#665474}
+ .mobile-only.mobile-steps button{font-size:15px;color:#665474;min-height:50px}
+ .check-row,.shape-label,.custom-dimensions label,.crop-controls label,.examples,.crop-disclosure>summary,.box-disclosure>summary{font-size:16px}
+ .check-row{line-height:1.4;gap:10px}input[type=checkbox]{width:18px;height:18px}
+ .size-options small,.size-options button>span,.upload-zone small,.color-info small,.color-amount small,.stats span,.stage-caption,.stage-caption span:last-child,.board-stage-label,.board-stage-label span:last-child{font-size:13px}
+ .view-options button,.subtle-button,.framing-result button,.custom-presets button,.export-actions>#printButton,.export-actions>#exportCsv{font-size:15px}
+ .examples button{font-size:15px;padding:8px 12px;min-height:44px}
+ .crop-controls input{min-height:44px}#resetCrop,#clearHighlight,.calibration summary{min-height:44px}
+ .zoom-tools span{min-width:43px;font-size:13px}.zoom-tools #zoomReset{font-size:14px}
+ .color-list{max-height:none;height:auto;overflow:visible}
+ .box-cell{min-height:44px}.compartment-number{font-size:12px}
+ .mobile-action-bar #mobileBack{font-size:15px;color:#665474}
+ dialog h2{font-size:24px}#exportDescription{font-size:15px}#exportPreview{max-height:32dvh}
+ .site-header .mobile-help{min-width:44px}.site-header{gap:7px}
+}
+@media(max-width:370px){.mobile-only.mobile-steps button{font-size:14px}.mobile-steps button span{font-size:12px}.mobile-only.mobile-intro span{font-size:14px}.preview-tools{flex-wrap:wrap}.zoom-tools{margin-left:auto}.stage-caption span:last-child{letter-spacing:0}.language-list button{overflow-wrap:anywhere}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}button{transition:none}}
