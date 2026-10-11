@@ -17,7 +17,7 @@
     current=stage;workspace.dataset.mobilePanel=stage;
     document.querySelectorAll('[data-mobile-step]').forEach(b=>{if(b.dataset.mobileStep===stage)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current');});
     refresh();
-    if(phone.matches&&scroll){workspace.scrollIntoView({block:'start',behavior:'auto'});const panel=workspace.querySelector('.'+({setup:'settings',preview:'preview',materials:'materials'}[stage]));panel.setAttribute('tabindex','-1');panel.focus({preventScroll:true});}
+    if(phone.matches&&scroll){workspace.scrollIntoView({block:'start',behavior:window.matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});const panel=workspace.querySelector('.'+({setup:'settings',preview:'preview',materials:'materials'}[stage]));panel.setAttribute('tabindex','-1');panel.focus({preventScroll:true});}
   }
   document.querySelectorAll('[data-mobile-step]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.mobileStep)));
   next.addEventListener('click',()=>{if(current==='materials'){$('exportPng').click();return;}if(current==='setup'&&!$('pendingBadge').hidden){$('generateButton').click();if(!$('pendingBadge').hidden)return;}show(stages[stages.indexOf(current)+1]);});
