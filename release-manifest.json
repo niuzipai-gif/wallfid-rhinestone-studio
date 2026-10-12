@@ -9,8 +9,8 @@
   "image-flow.css": "21eec424de9d207b92bdbb7733e9f07b434c3b6913551bc46b16fdb9f940b9f4",
   "image-flow.test.cjs": "4bc79647d32306e9be10d0951eef8103ba4e03fa4f0747db3bbe755bb810fd28",
   "image-sampling-wallfid.js": "d829484fcde771b83672dcb9c80f2bf2d170a97ea71ab894de3534bc70b3e5d0",
-  "index.html": "b3444b9c37be7080c6e13d8d5b62e9af4251200f0773bf251265b77b77a7f2ac",
-  "languages-data.js": "b6a8189784035907a413aaaee97581d1e6109c80f15cfd3a1bc97bc2197e6c1b",
+  "index.html": "b34b091c22d5b1aaf275a75e7ce2472e0aac566e44f457ab0fbe07c70e244a61",
+  "languages-data.js": "275a703f956ce40d52c15b99b9ff6ba07fe0d1424c86bde8b7da8a273676e745",
   "languages.css": "7657e5e2a087134070d4668d09757ef55aed15b7ef5edc329b5944d789e674b7",
   "languages.js": "b60c9b9e4350f34eb3b81257dd0d1cf4823904ceb9a8ee12db085e205efeb91f",
   "languages.test.cjs": "fb860db94f5ae6a44e74cfd780bf1d8d9312dd5c684aa69667a3207938580cdb",
@@ -19,8 +19,8 @@
   "pattern-core-spark.js": "b12d20707d08bd95663177213239e76d95818de56e08c26df68aed15fe90a981",
   "README.md": "7ea742d7f2618e756dd11ec3125fb1e715783aa264bcdfc802d00240ab9ce066",
   "sampling-wallfid.test.cjs": "c261845005abad48e8171b6415ccddd4a256c46b26fee4dac6da5fe372e2e6eb",
-  "site-motion.css": "e49671e49f4008a9382005be6b024aae132cb3ada2f332149c40ae190c77d713",
-  "site-motion.js": "8e345b965b79b58ac7c9f2b4f76b9bbe33750fac44a81f9cc05d98b7b8fc6de4",
+  "site-motion.css": "85e4a0030becdfaad5c8dc09981dd99784f3bdf6459dd333ede131d7663dc344",
+  "site-motion.js": "e6e5992b0c5946179f9e58d3416539fae0c4060d28b40392c9f1a2fbbdc2d977",
   "small-pattern.test.cjs": "015e9d70242f022bf385bec6eef5c7f74f02add68155ea75050c6785724000f4",
   "spark-preview.css": "278006ca543f94dcacdb35c4b921196791939b7d34e3f9e92e8546853e729b1f",
   "uk-preview.css": "711327a8ec89c86d2af633bd466485297554f739973d95cb571c911e18f0b2f8",
@@ -30,5 +30,9 @@
   "assets/spark/kit-reference.webp": "e6cd21bcf3035609f97f207b3dcc4f2b93e1ee60f186677239306c1c78009965",
   "assets/spark/making-sequence.webp": "e963d5466849924d1420ce92c2b8793810e381df18644413c1440a5a2cb39a21",
   "assets/spark/square-mosaic-cutout.webp": "244638864c0437a0baf5d8eaf9ce6712e09beecfe6f856de37ee072aa9c94aea",
-  "assets/spark/square-mosaic-sharp-corners.webp": "2ac80675f3f0d4615fe6c6202f0a4b1504b637e3b136cf260a2c088883ec50cf"
+  "assets/spark/square-mosaic-sharp-corners.webp": "2ac80675f3f0d4615fe6c6202f0a4b1504b637e3b136cf260a2c088883ec50cf",
+  "assets/spark/standalone-v2/flower-web.webp": "28b27d661e461137434032748ca0122f961ca963e6f020f17445ecaeaafa3728",
+  "assets/spark/standalone-v2/heart-web.webp": "f5ab9b2a374a1ec1199ea58d34d7c9e7c119ff0f29c3aac9e736bdb9ad0dd2c5",
+  "assets/spark/standalone-v2/initial-web.webp": "04292020a76bb906517b946fd6facdb7eac56ab1c235fed5ac4e4ada3c61a6a3",
+  "assets/spark/standalone-v2/pen-web.webp": "deb2a9b9deaf31dc4b00efebe762bdc7447c6e9c9291310b1474134bef8d07f8"
 }
