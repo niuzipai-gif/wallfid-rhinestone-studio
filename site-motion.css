@@ -41,10 +41,17 @@ dialog::backdrop{background:#25153355;animation:backdrop-arrive 180ms ease both}
 @keyframes backdrop-arrive{from{background:#25153300}to{background:#25153355}}
 @media(hover:hover) and (pointer:fine){.idea-item:hover .idea-art canvas,.idea-item:focus-visible .idea-art canvas{transform:translateY(-5px) rotate(-1deg)}.hero-action:hover,.header-action:hover{box-shadow:0 5px 16px #43246724}}
 @media(max-width:900px){
- .mobile-only.mobile-intro>.artwork-motion{grid-column:2;grid-row:3;display:block;position:relative;width:calc(100% + 14px);margin:0 -10px 0 0;--art-scale:1.05;--float-distance:5px;transform:scale(1.05)}
+ .mobile-only.mobile-intro>.artwork-motion{grid-column:2;grid-row:3;display:block;position:relative;width:100%;margin:0;aspect-ratio:1.15;--art-scale:1;--float-distance:2px;transform:none}
+ /* A compact arrangement of complete boards, with real overlap rather than cut edges. */
+ .mobile-intro .piece-initial{left:0;top:0;width:58%;--board-angle:-5deg;--piece-x:-.6px;--piece-turn:-.3deg}
+ .mobile-intro .piece-flower{left:34%;top:7%;width:67%;--board-angle:7deg;--piece-x:.6px;--piece-turn:.3deg}
+ .mobile-intro .piece-heart{left:6%;top:37%;width:59%;--board-angle:-8deg;--piece-x:.4px;--piece-turn:.3deg}
  .mobile-only.mobile-intro>.artwork-motion .artwork-piece>img{width:100%;height:100%;max-width:none;margin:0;transform:rotate(var(--board-angle))}
- .mobile-only.mobile-intro>.artwork-motion>.artwork-pen{width:91%;height:auto;margin:0;transform:rotate(-8deg)}
- .mobile-intro .floating-gem{width:9px;height:9px;--piece-x:2px}
+ .mobile-only.mobile-intro>.artwork-motion>.artwork-pen{display:none}
+ .mobile-intro .floating-gem{width:8px;height:8px;--piece-x:.5px}
+ .mobile-intro .gem-1{left:0;top:53%}.mobile-intro .gem-2{left:91%;top:79%}
+ .mobile-intro .gem-3,.mobile-intro .gem-4,.mobile-intro .gem-5{display:none}
+ .mobile-intro .glint-1{left:26%;top:22%}.mobile-intro .glint-2{left:32%;top:68%}.mobile-intro .glint-3{left:76%;top:40%}
  .mobile-intro .art-glint{width:9px;height:9px}
  .hero-art>.artwork-motion{width:100%;margin-left:0}
 }
