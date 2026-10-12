@@ -41,20 +41,31 @@ dialog::backdrop{background:#25153355;animation:backdrop-arrive 180ms ease both}
 @keyframes backdrop-arrive{from{background:#25153300}to{background:#25153355}}
 @media(hover:hover) and (pointer:fine){.idea-item:hover .idea-art canvas,.idea-item:focus-visible .idea-art canvas{transform:translateY(-5px) rotate(-1deg)}.hero-action:hover,.header-action:hover{box-shadow:0 5px 16px #43246724}}
 @media(max-width:900px){
- .mobile-only.mobile-intro>.artwork-motion{grid-column:2;grid-row:3;display:block;position:relative;width:100%;margin:0;aspect-ratio:1.15;--art-scale:1;--float-distance:2px;transform:none}
- /* A compact arrangement of complete boards, with real overlap rather than cut edges. */
- .mobile-intro .piece-initial{left:0;top:0;width:58%;--board-angle:-5deg;--piece-x:-.6px;--piece-turn:-.3deg}
- .mobile-intro .piece-flower{left:34%;top:7%;width:67%;--board-angle:7deg;--piece-x:.6px;--piece-turn:.3deg}
- .mobile-intro .piece-heart{left:6%;top:37%;width:59%;--board-angle:-8deg;--piece-x:.4px;--piece-turn:.3deg}
+ /* Copy and complete artwork share one scene; distance comes from scale, focus and light. */
+ .mobile-only.mobile-intro{display:block;position:relative;isolation:isolate;min-height:272px;padding:24px 20px;background:radial-gradient(ellipse at 83% 34%,#ffffffc9,transparent 58%),linear-gradient(145deg,#eee7fa,#e6dcf5);box-shadow:inset 0 1px 0 #fff9}
+ .mobile-only.mobile-intro:before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,#eee7fa 0%,#eee7fae8 36%,#eee7fa00 69%)}
+ .mobile-only.mobile-intro>div{display:block;position:relative;z-index:3}
+ .mobile-only.mobile-intro p{margin:0 0 12px;max-width:72%;font-size:10px;line-height:1.5}
+ .mobile-only.mobile-intro h1{margin:0;max-width:76%;font-size:34px;line-height:1.12;letter-spacing:-.8px;text-wrap:balance;overflow-wrap:anywhere;text-shadow:0 1px 0 #ffffffb0,0 0 12px #eee7fa,0 0 5px #eee7fa}
+ .mobile-only.mobile-intro>div>span{display:block;max-width:48%;margin-top:24px;font-size:14px;line-height:1.65;color:#665474}
+ .mobile-only.mobile-intro>.artwork-motion{display:block;position:absolute;inset:0;width:100%;height:100%;margin:0;aspect-ratio:auto;z-index:1;--art-scale:1;--float-distance:3px;transform:none;pointer-events:none}
+ .mobile-intro .piece-initial{z-index:1;left:64%;top:3%;width:31%;opacity:.34;--board-angle:-12deg;--piece-x:-.5px;--piece-turn:-.25deg;--float-distance:1.5px}
+ .mobile-intro .piece-flower{z-index:2;left:48%;top:25%;width:51%;--board-angle:8deg;--piece-x:1px;--piece-turn:.45deg}
+ .mobile-intro .piece-heart{z-index:3;left:62%;top:59%;width:32%;--board-angle:-12deg;--piece-x:.8px;--piece-turn:.35deg;--float-distance:4px}
  .mobile-only.mobile-intro>.artwork-motion .artwork-piece>img{width:100%;height:100%;max-width:none;margin:0;transform:rotate(var(--board-angle))}
+ .mobile-only.mobile-intro>.artwork-motion .piece-initial>img{filter:blur(1.2px) drop-shadow(0 3px 4px #4c326719)}
+ .mobile-only.mobile-intro>.artwork-motion .piece-flower>img{transform:perspective(450px) rotateY(-12deg) rotate(var(--board-angle));filter:drop-shadow(0 12px 12px #4c32672a)}
+ .mobile-only.mobile-intro>.artwork-motion .piece-heart>img{filter:drop-shadow(0 15px 10px #4221533b)}
  .mobile-only.mobile-intro>.artwork-motion>.artwork-pen{display:none}
  .mobile-intro .floating-gem{width:8px;height:8px;--piece-x:.5px}
- .mobile-intro .gem-1{left:0;top:53%}.mobile-intro .gem-2{left:91%;top:79%}
+ .mobile-intro .gem-1{left:91%;top:54%;width:6px;height:6px;opacity:.6;filter:blur(.5px)}.mobile-intro .gem-2{left:58%;top:86%;width:9px;height:9px;filter:drop-shadow(0 3px 2px #42215333)}
  .mobile-intro .gem-3,.mobile-intro .gem-4,.mobile-intro .gem-5{display:none}
- .mobile-intro .glint-1{left:26%;top:22%}.mobile-intro .glint-2{left:32%;top:68%}.mobile-intro .glint-3{left:76%;top:40%}
+ .mobile-intro .glint-1{display:none}.mobile-intro .glint-2{left:77%;top:79%}.mobile-intro .glint-3{left:73%;top:46%}
  .mobile-intro .art-glint{width:9px;height:9px}
  .hero-art>.artwork-motion{width:100%;margin-left:0}
 }
+@media(max-width:370px){.mobile-only.mobile-intro{padding:22px 18px;min-height:266px}.mobile-only.mobile-intro h1{font-size:30px}.mobile-only.mobile-intro>div>span{max-width:48%;font-size:13px;margin-top:22px}}
+@media(min-width:600px) and (max-width:900px){.mobile-only.mobile-intro{min-height:310px;padding:30px}.mobile-only.mobile-intro h1{font-size:42px}.mobile-only.mobile-intro>div>span{max-width:46%;font-size:17px}.mobile-intro .piece-initial{left:74%;width:20%}.mobile-intro .piece-flower{left:55%;top:11%;width:35%}.mobile-intro .piece-heart{left:73%;top:56%;width:21%}}
 @media(prefers-reduced-motion:reduce){
  html.motion-ready .artwork-piece,html.motion-ready .floating-gem,html.motion-ready .artwork-motion .art-glint{animation:none!important}
  .artwork-piece,.floating-gem{transform:none!important}
