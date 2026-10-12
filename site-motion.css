@@ -1,21 +1,33 @@
 /* Motion guides attention without changing layout or delaying a control's action. */
 :root{--motion-ease:cubic-bezier(.22,1,.36,1);--motion-fast:180ms}
 html.motion-ready{scroll-behavior:smooth}
-.artwork-motion{position:relative;display:block;flex-shrink:0;--art-scale:1;isolation:isolate}
+.artwork-motion{position:relative;display:block;flex-shrink:0;--art-scale:1;--float-distance:18px;isolation:isolate;transform:scale(var(--art-scale))}
 .hero-art>.artwork-motion{width:124%;max-width:none;margin-left:-30px}
 .artwork-motion>img{display:block;width:100%;height:auto;max-width:none;margin:0;transform:none}
-.art-glint{position:absolute;display:block;width:12px;height:12px;opacity:0;pointer-events:none;background:radial-gradient(circle,#fff 0 9%,#fff8 12%,transparent 45%);transform:scale(.5);z-index:1}
+.art-clip-defs{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
+.artwork-piece{position:absolute;inset:0;display:block;pointer-events:none;z-index:1}
+.artwork-piece>img{display:block;width:100%;height:100%;max-width:none;margin:0;transform:none;object-fit:contain}
+.piece-initial{z-index:2;transform-origin:31% 24%;--piece-x:-4px;--piece-turn:-1.5deg;--piece-duration:5.8s;--piece-delay:-1.4s}
+.piece-heart{z-index:3;transform-origin:30% 66%;--piece-x:5px;--piece-turn:1.8deg;--piece-duration:6.6s;--piece-delay:-3.5s}
+.piece-flower{transform-origin:67% 40%;--piece-x:2px;--piece-turn:.8deg;--piece-duration:7.3s;--piece-delay:-.6s}
+.floating-gem{position:absolute;display:block;width:24px;height:24px;pointer-events:none;z-index:4;background-image:var(--art-sprite);background-repeat:no-repeat;background-size:2792.727% 1861.818%;--piece-x:4px;--piece-turn:12deg;--piece-duration:5s;--piece-delay:0s}
+.gem-1{left:12%;top:18%;background-position:13.336% 27.296%;--piece-delay:-.8s}
+.gem-2{left:6%;top:53%;width:19px;height:19px;background-position:10.297% 34.933%;--piece-delay:-2.8s;--piece-duration:6.4s}
+.gem-3{left:53%;top:76%;width:20px;height:20px;background-position:15.226% 38.029%;--piece-delay:-1.7s;--piece-duration:5.7s}
+.gem-4{left:91%;top:47%;width:20px;height:20px;background-position:90.919% 55.367%;--piece-delay:-4s;--piece-duration:6.8s}
+.gem-5{left:17%;top:92%;width:18px;height:18px;background-position:91.189% 62.59%;--piece-delay:-3.3s;--piece-duration:5.4s}
+.art-glint{position:absolute;display:block;width:12px;height:12px;opacity:0;pointer-events:none;background:radial-gradient(circle,#fff 0 9%,#fff8 12%,transparent 45%);transform:scale(.5);z-index:5}
 .art-glint:before,.art-glint:after{content:"";position:absolute;inset:47% 0;background:linear-gradient(90deg,transparent,#fff,transparent)}
 .art-glint:after{transform:rotate(90deg)}
 .glint-1{left:31%;top:27%;--glint-delay:-2.2s}.glint-2{left:31%;top:58%;--glint-delay:-5.7s}.glint-3{left:66%;top:34%;--glint-delay:-.8s}
-@keyframes artwork-float{0%,100%{transform:translate3d(0,0,0) rotate(-.25deg) scale(var(--art-scale))}50%{transform:translate3d(0,-5px,0) rotate(.3deg) scale(var(--art-scale))}}
+@keyframes piece-float{0%,100%{transform:translate3d(0,0,0) rotate(0)}50%{transform:translate3d(var(--piece-x),calc(-1 * var(--float-distance)),0) rotate(var(--piece-turn))}}
 @keyframes stone-glimmer{0%,72%,100%{opacity:0;transform:scale(.45) rotate(0)}79%{opacity:.8;transform:scale(1.05) rotate(12deg)}87%{opacity:0;transform:scale(.65) rotate(24deg)}}
 /* Only the visible artwork runs; offscreen and background tabs remain still. */
-html.motion-ready .artwork-motion{animation:artwork-float 8.8s ease-in-out infinite;animation-play-state:paused}
-html.motion-ready .artwork-motion.is-in-view{animation-play-state:running}
+html.motion-ready .artwork-piece,html.motion-ready .floating-gem{animation:piece-float var(--piece-duration) ease-in-out var(--piece-delay) infinite;animation-play-state:paused}
+html.motion-ready .artwork-motion.is-in-view .artwork-piece,html.motion-ready .artwork-motion.is-in-view .floating-gem{animation-play-state:running}
 html.motion-ready .artwork-motion .art-glint{animation:stone-glimmer 9s ease-in-out var(--glint-delay) infinite;animation-play-state:paused}
 html.motion-ready .artwork-motion.is-in-view .art-glint{animation-play-state:running}
-html.motion-suspended .artwork-motion,html.motion-suspended .artwork-motion .art-glint{animation-play-state:paused!important}
+html.motion-suspended .artwork-piece,html.motion-suspended .floating-gem,html.motion-suspended .artwork-motion .art-glint{animation-play-state:paused!important}
 button,a,select,input,.upload-zone,summary{transition:background-color var(--motion-fast) ease,color var(--motion-fast) ease,border-color var(--motion-fast) ease,box-shadow var(--motion-fast) ease}
 .mobile-steps button,.pattern-mode button,.view-options button,.size-options button,.custom-presets button,.examples button,.language-list button{transition:background-color 200ms ease,color 200ms ease,border-color 200ms ease,box-shadow 200ms ease,transform 160ms var(--motion-ease)}
 button:not(:disabled):active,.hero-action:active,.header-action:active,.upload-zone:active{transform:translateY(1px)}
@@ -31,16 +43,20 @@ dialog::backdrop{background:#25153355;animation:backdrop-arrive 180ms ease both}
 @media(min-width:901px) and (max-width:1000px){.hero-art>.artwork-motion{width:138%;margin-left:-15px}}
 @media(max-width:900px){
  .mobile-only.mobile-intro>.artwork-motion{grid-column:2;grid-row:3;display:block;position:relative;width:calc(100% + 23px);margin:0 -16px 0 0;--art-scale:1.12;transform:scale(1.12)}
+ .mobile-only.mobile-intro>.artwork-motion{--float-distance:8px}
  .mobile-only.mobile-intro>.artwork-motion>img{width:100%;height:auto;max-width:none;margin:0;transform:none}
+ .mobile-only.mobile-intro>.artwork-motion .artwork-piece>img{width:100%;height:100%;max-width:none;margin:0;transform:none}
+ .mobile-intro .floating-gem{width:9px;height:9px;--piece-x:2px}
  .mobile-intro .art-glint{width:9px;height:9px}
  .hero-art>.artwork-motion{width:110%;margin-left:0}
 }
 @media(max-width:370px){.mobile-only.mobile-intro>.artwork-motion{width:calc(100% + 20px)}}
 @media(prefers-reduced-motion:reduce){
- html.motion-ready .artwork-motion,html.motion-ready .artwork-motion .art-glint{animation:none!important}
+ html.motion-ready .artwork-piece,html.motion-ready .floating-gem,html.motion-ready .artwork-motion .art-glint{animation:none!important}
+ .artwork-piece,.floating-gem{transform:none!important}
  .artwork-motion{transform:scale(var(--art-scale))!important}.art-glint{display:none}
  button,a,select,input,.upload-zone,summary,.color-row,.box-cell,.idea-art canvas,.toast,.crop-disclosure>summary span,.box-disclosure>summary span{transition:none!important}
  button:active,.hero-action:active,.header-action:active,.upload-zone:active,.idea-item:hover .idea-art canvas,.idea-item:focus-visible .idea-art canvas{transform:none!important}
  dialog::backdrop{animation:none}html{scroll-behavior:auto!important}
 }
-@media print{.artwork-motion,.art-glint{animation:none!important}.art-glint{display:none}*{transition:none!important}}
+@media print{.artwork-piece,.floating-gem,.art-glint{animation:none!important}.floating-gem,.art-glint{display:none}*{transition:none!important}}

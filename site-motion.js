@@ -50,6 +50,7 @@
  });
  document.addEventListener('wallfid:pattern-ready',()=>animate(document.getElementById('canvasStage'),[{opacity:.65},{opacity:1}],220));
  const artwork=document.querySelectorAll('[data-motion-art]');
+ artwork.forEach(el=>{const image=el.querySelector('.artwork-base');if(image)el.style.setProperty('--art-sprite','url("'+image.src+'")');});
  if(typeof IntersectionObserver!=='undefined'){
   const visibility=new IntersectionObserver(entries=>entries.forEach(entry=>entry.target.classList.toggle('is-in-view',entry.isIntersecting)),{threshold:.15});
   artwork.forEach(el=>visibility.observe(el));
