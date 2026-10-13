@@ -5,8 +5,8 @@ for(let y=0;y<h;y++)for(let x=14;x<17;x++)a.set([25,25,25,255],(y*w+x)*4);
 const spec=core.customSpec(12,12),old=s.sample(a,w,h,spec,{outlines:true}),smart=s.sample(a,w,h,spec,{outlines:true,smart:true});
 assert.equal(core.quantize(old,spec).total,0);assert.equal(core.quantize(smart,spec).total,4,'low-coverage connected thin strokes should survive once per crossed cell');
 // White/green/red pixels must not average into a colour absent from the motif.
-const block=new Uint8ClampedArray(w*h*4);for(let y=0;y<h;y++)for(let x=0;x<w;x++)block.set(x%30<19?[29,157,68,255]:[240,238,234,255],(y*w+x)*4);
-const p=core.quantize(s.sample(block,w,h,spec,{smart:true,outlines:true}),spec);assert(p.cells.every(i=>i===9),'a clear majority green must map to that fixed palette compartment');
+const block=new Uint8ClampedArray(w*h*4);for(let y=0;y<h;y++)for(let x=0;x<w;x++)block.set(x%30<19?[...core.palette[14].rgb,255]:[240,238,234,255],(y*w+x)*4);
+const p=core.quantize(s.sample(block,w,h,spec,{smart:true,outlines:true}),spec);assert(p.cells.every(i=>i===14),'a clear majority green must map to that fixed palette compartment');
 // A single stray transparent pixel must not consume a drill.
 const speck=new Uint8ClampedArray(w*h*4);speck.set([25,25,25,255],(19*w+14)*4);assert.equal(core.quantize(s.sample(speck,w,h,spec,{smart:true}),spec).total,0);
 // Fixed palette identity and bounds are independent of image or size.

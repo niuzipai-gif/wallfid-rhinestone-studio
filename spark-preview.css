@@ -15,3 +15,6 @@
 @media(max-width:650px){.hero-copy h1 em{font-size:.82em;white-space:nowrap;letter-spacing:-2px}}
 html{scroll-behavior:auto}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.idea-art canvas{transition:none}}
+
+/* Keep physical-reference colours visible even when unused. */
+.box-cell.unused{opacity:1;filter:none}.box-cell.unused .compartment-number{color:#85778e}
