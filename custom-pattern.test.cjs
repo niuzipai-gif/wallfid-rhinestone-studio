@@ -6,7 +6,7 @@ for(const size of [50,80,100]){
   assert.equal(spec.diameter,3);assert.equal(spec.custom,false);
   for(let row=0;row<spec.rows;row++)for(let col=0;col<spec.cols;col++){
     const x=spec.offsetX+(col+.5)*spec.pitch,y=spec.offsetY+(row+.5)*spec.pitch;
-    assert(x-1.5>=3&&y-1.5>=3&&x+1.5<=size-3&&y+1.5<=size-3);
+    assert(x-1.5>=2&&y-1.5>=2&&x+1.5<=size-2&&y+1.5<=size-2);
   }
 }
 for(const [width,height,pitch] of [[240,180,3],[600,12,3],[12,600,3],[187,213,3.2],[600,600,5]]){

@@ -14,7 +14,7 @@
     const cols=Math.floor((width-2*margin-diameter)/pitch)+1,rows=Math.floor((height-2*margin-diameter)/pitch)+1;
     return {width,height,pitch,diameter,margin,cols,rows,offsetX:(width-cols*pitch)/2,offsetY:(height-rows*pitch)/2,shape,custom:true,size:width,n:cols,offset:(width-cols*pitch)/2};
   }
-  function gridSpec(size,pitch=3,margin=3){if(![50,80,100].includes(size))throw new Error('Invalid board size or stone spacing');return {...customSpec(size,size,pitch,'rectangle',margin),size,custom:false};}
+  function gridSpec(size,pitch=3,margin=2){if(![50,80,100].includes(size))throw new Error('Invalid board size or stone spacing');return {...customSpec(size,size,pitch,'rectangle',margin),size,custom:false};}
   function inside(spec,x,y){
     const r=diameter/2;
     if(x-r<spec.margin||y-r<spec.margin||x+r>spec.width-spec.margin||y+r>spec.height-spec.margin)return false;
@@ -25,8 +25,40 @@
       return boundary.every(([dx,dy])=>test(x+dx,y+dy));
     }return true;
   }
-  function nearest(color){const value=lab(color);let best=0,min=Infinity;palette.forEach((c,i)=>{const d=c.lab.reduce((s,v,k)=>s+(v-value[k])**2,0);if(d<min){min=d;best=i;}});return best;}
-  function quantize(rgba,spec,skipBackground=false){const {cols,rows}=spec;if(rgba.length!==cols*rows*4)throw new Error('Sample data does not match the grid');const cells=[],counts=Array(40).fill(0);for(let i=0;i<cols*rows;i++){const j=i*4,alpha=rgba[j+3]/255,color=[rgba[j],rgba[j+1],rgba[j+2]],x=i%cols,y=Math.floor(i/cols);const px=spec.offsetX+(x+.5)*spec.pitch,py=spec.offsetY+(y+.5)*spec.pitch;const blank=alpha<.5||!inside(spec,px,py)||(skipBackground&&color.every(v=>v>=238));if(blank){cells.push(-1);continue;}const index=nearest(color);cells.push(index);counts[index]++;}return {...spec,cells,counts,total:counts.reduce((a,b)=>a+b,0),used:counts.filter(Boolean).length,paletteVersion:'physical-sample-2026-10-13-row-major-40-v2'};}
+  // CIEDE2000; implementation checked against Sharma/Wu/Dalal's reference pairs.
+  // https://hajim.rochester.edu/ece/sites/gsharma/ciede2000/
+  function deltaE00(a,b){
+    const rad=Math.PI/180,deg=180/Math.PI,C1=Math.hypot(a[1],a[2]),C2=Math.hypot(b[1],b[2]),C=(C1+C2)/2;
+    const G=.5*(1-Math.sqrt(C**7/(C**7+25**7))),a1=(1+G)*a[1],a2=(1+G)*b[1],c1=Math.hypot(a1,a[2]),c2=Math.hypot(a2,b[2]);
+    const hue=(x,y)=>(Math.atan2(y,x)*deg+360)%360,h1=hue(a1,a[2]),h2=hue(a2,b[2]);
+    const dL=b[0]-a[0],dC=c2-c1;let dh=h2-h1;if(!c1||!c2)dh=0;else if(dh>180)dh-=360;else if(dh< -180)dh+=360;
+    const dH=2*Math.sqrt(c1*c2)*Math.sin(dh*rad/2),L=(a[0]+b[0])/2,cp=(c1+c2)/2;
+    let h;if(!c1||!c2)h=h1+h2;else if(Math.abs(h1-h2)<=180)h=(h1+h2)/2;else h=(h1+h2+(h1+h2<360?360:-360))/2;
+    const T=1-.17*Math.cos((h-30)*rad)+.24*Math.cos(2*h*rad)+.32*Math.cos((3*h+6)*rad)-.20*Math.cos((4*h-63)*rad);
+    const SL=1+.015*(L-50)**2/Math.sqrt(20+(L-50)**2),SC=1+.045*cp,SH=1+.015*cp*T;
+    const RT=-2*Math.sqrt(cp**7/(cp**7+25**7))*Math.sin(60*Math.exp(-(((h-275)/25)**2))*rad);
+    return Math.sqrt((dL/SL)**2+(dC/SC)**2+(dH/SH)**2+RT*(dC/SC)*(dH/SH));
+  }
+  const matchCache=new Map(),darkestL=Math.min(...palette.map(c=>c.lab[0]));
+  function nearest(color,darker=false,artwork=false){
+    const key=color.join(',')+':'+darker+':'+artwork;if(matchCache.has(key))return matchCache.get(key);
+    const value=lab(color);let best=0,min=Infinity;
+    const chroma=Math.hypot(value[1],value[2]),hue=Math.atan2(value[2],value[1]);
+    palette.forEach((c,i)=>{
+      // A recognised outline must not jump to a much lighter drill and merge
+      // into the fill just because the limited palette lacks the exact shade.
+      if(darker&&c.lab[0]>Math.max(value[0]+3,darkestL))return;
+      const targetChroma=Math.hypot(c.lab[1],c.lab[2]);let huePenalty=0;
+      if(chroma>12&&targetChroma>12){const angle=Math.abs(hue-Math.atan2(c.lab[2],c.lab[1]));huePenalty=.5*Math.min(angle,Math.PI*2-angle)*180/Math.PI*Math.min(1,(chroma-12)/18);}
+      // With only 40 choices, preserve a recognisable colour family as well as
+      // perceptual distance: pale green should not become a yellow motif.
+      // Photo gradients need conservative saturation; flat artwork instead
+      // benefits from hue-aware matches between a handful of distinct fills.
+      const d=artwork?deltaE00(value,c.lab)+huePenalty*Math.max(0,Math.min(1,(value[0]-75)/15)):Math.hypot(...value.map((v,k)=>v-c.lab[k]));if(d<min){min=d;best=i;}
+    });
+    if(matchCache.size>8192)matchCache.clear();matchCache.set(key,best);return best;
+  }
+  function quantize(rgba,spec,skipBackground=false){const {cols,rows}=spec;if(rgba.length!==cols*rows*4)throw new Error('Sample data does not match the grid');const cells=[],counts=Array(40).fill(0);for(let i=0;i<cols*rows;i++){const j=i*4,alpha=rgba[j+3]/255,color=[rgba[j],rgba[j+1],rgba[j+2]],x=i%cols,y=Math.floor(i/cols);const px=spec.offsetX+(x+.5)*spec.pitch,py=spec.offsetY+(y+.5)*spec.pitch;const blank=alpha<.5||!inside(spec,px,py)||(skipBackground&&color.every(v=>v>=238));if(blank){cells.push(-1);continue;}const index=nearest(color,Boolean(rgba.outlineMask?.[i]),Boolean(rgba.artwork));cells.push(index);counts[index]++;}return {...spec,cells,counts,total:counts.reduce((a,b)=>a+b,0),used:counts.filter(Boolean).length,paletteVersion:'physical-sample-2026-10-13-row-major-40-v2'};}
   function printTiles(spec){const nc=Math.floor(180/spec.pitch),nr=Math.floor(210/spec.pitch),tiles=[];for(let row=0;row<spec.rows;row+=nr)for(let col=0;col<spec.cols;col+=nc)tiles.push({col,row,cols:Math.min(nc,spec.cols-col),rows:Math.min(nr,spec.rows-row)});return tiles;}
   function outline(pattern){
     const cells=pattern.cells.map((v,k)=>{
@@ -41,5 +73,5 @@
     const counts=Array(40).fill(0);cells.forEach(i=>{if(i>=0)counts[i]++;});
     return {...pattern,cells,counts,total:counts.reduce((a,b)=>a+b,0),used:counts.filter(Boolean).length,style:'outline'};
   }
-  const api={palette,gridSpec,customSpec,diameter,inside,printTiles,nearest,quantize,outline};root.PatternCore=api;if(typeof module!=='undefined')module.exports=api;
+  const api={palette,gridSpec,customSpec,diameter,inside,printTiles,nearest,quantize,outline,deltaE00};root.PatternCore=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

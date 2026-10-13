@@ -18,5 +18,5 @@ const ordinary=photo(lights,20,1,false),enhanced=photo(lights,20,1,true);
 assert(enhanced[2]>ordinary[2]*2,'small blue lights survive dark-area averaging');
 assert(enhanced[2]>enhanced[1]&&enhanced[1]>enhanced[0],'blue light hue is preserved');
 const clean=raster(62,(x,y)=>x>=14&&x<48?[35,45,100,255]:[255,0,0,0]);
-for(const size of [50,80,100]){const spec=gridSpec(size),p=quantize(photo(clean,62,spec.n,true),spec);assert(p.total>0&&p.total<spec.n**2);assert.equal(p.counts.reduce((a,b)=>a+b,0),p.total);assert(p.cells.every(v=>v===-1||(v>=0&&v<40)));assert.equal(p.n,{50:14,80:24,100:31}[size]);}
+for(const size of [50,80,100]){const spec=gridSpec(size),p=quantize(photo(clean,62,spec.n,true),spec);assert(p.total>0&&p.total<spec.n**2);assert.equal(p.counts.reduce((a,b)=>a+b,0),p.total);assert(p.cells.every(v=>v===-1||(v>=0&&v<40)));assert.equal(p.n,{50:15,80:25,100:32}[size]);}
 console.log('PASS: portrait/landscape framing, transparent padding, dark-light sampling, fixed physical grids and 40-compartment counts.');

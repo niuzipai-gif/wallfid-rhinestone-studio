@@ -19,6 +19,13 @@
     const w=width*scale,h=height*scale;
     return {x:(side-w)*px/100,y:(targetHeight-h)*py/100,width:w,height:h};
   }
+  function boardFraming(width,height,targetWidth,targetHeight,spec,mode='contain',zoom=1,px=50,py=50){
+    // Fit inside the actual drill extent, including the fixed board margin.
+    const ux=targetWidth/spec.width,uy=targetHeight/spec.height;
+    const insetX=(spec.offsetX+(spec.pitch-spec.diameter)/2)*ux,insetY=(spec.offsetY+(spec.pitch-spec.diameter)/2)*uy;
+    const frame=framing(width,height,targetWidth-2*insetX,mode,zoom,px,py,targetHeight-2*insetY);
+    return {...frame,x:frame.x+insetX,y:frame.y+insetY};
+  }
   // Alpha-aware cell sampling. Brightness-weighted colour keeps small lights from
   // disappearing into dark surroundings; it never adds pixels or palette colours.
   function photo(rgba,width,n,enhance=false){
@@ -60,21 +67,52 @@
     const pad=Math.ceil(Math.max(right-left,bottom-top)*.012);left=Math.max(0,left-pad);top=Math.max(0,top-pad);right=Math.min(width-1,right+pad);bottom=Math.min(height-1,bottom+pad);
     return {rgba:out,x:left,y:top,width:right-left+1,height:bottom-top+1,removed:tail};
   }
+  // A few broad source colours indicate artwork rather than a photograph.
+  // Use their actual source means to keep painted outlines distinct from fills.
+  function illustrationColours(rgba){
+    const bins=new Map(),white=[0,0,0,0];let total=0;
+    for(let j=0;j<rgba.length;j+=16){
+      const a=rgba[j+3]/255,r=rgba[j],g=rgba[j+1],b=rgba[j+2];
+      if(a<.8)continue;
+      if(Math.min(r,g,b)>=238){white[0]+=r*a;white[1]+=g*a;white[2]+=b*a;white[3]+=a;continue;}
+      const key=(r>>5)*64+(g>>5)*8+(b>>5),v=bins.get(key)||[0,0,0,0];
+      v[0]+=r*a;v[1]+=g*a;v[2]+=b*a;v[3]+=a;total+=a;bins.set(key,v);
+    }
+    const ordered=[...bins.values()].sort((a,b)=>b[3]-a[3]);
+    if(!total||ordered.slice(0,8).reduce((sum,b)=>sum+b[3],0)/total<.86)return null;
+    const centres=[];
+    for(const bin of ordered){
+      const colour=bin.slice(0,3).map(v=>v/bin[3]);
+      let group=centres.find(c=>Math.hypot(...colour.map((v,k)=>v-c.rgb[k]))<42);
+      if(!group){if(bin[3]/total<.015)continue;group={rgb:colour,mass:0};centres.push(group);}
+      group.rgb=group.rgb.map((v,k)=>(v*group.mass+bin[k])/(group.mass+bin[3]));group.mass+=bin[3];
+    }
+    if(white[3])centres.push({rgb:white.slice(0,3).map(v=>v/white[3]),mass:white[3]});
+    if(centres.length>7||centres.length<2)return null;
+    for(const c of centres)c.lum=.2126*c.rgb[0]+.7152*c.rgb[1]+.0722*c.rgb[2];
+    const darkest=Math.min(...centres.map(c=>c.lum));
+    for(const c of centres)c.stroke=c.lum<=darkest+15&&c.mass/(total+white[3])<.55;
+    return centres;
+  }
   function sample(rgba,width,height,spec,{enhance=false,outlines=true,smart=false}={}){
-    const {cols,rows}=spec,out=new Uint8ClampedArray(cols*rows*4);let light=0,alpha=0;
+    const {cols,rows}=spec,out=new Uint8ClampedArray(cols*rows*4);out.outlineMask=new Uint8Array(cols*rows);let light=0,alpha=0;
     for(let j=0;j<rgba.length;j+=4){const a=rgba[j+3]/255;light+=(.2126*rgba[j]+.7152*rgba[j+1]+.0722*rgba[j+2])*a;alpha+=a;}
     const dark=alpha&&light/alpha<75;
+    const art=smart&&outlines&&!dark?illustrationColours(rgba):null;
+    out.artwork=Boolean(art);
     for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
       const x0=Math.max(0,Math.floor((spec.offsetX+col*spec.pitch)/spec.width*width)),x1=Math.min(width,Math.ceil((spec.offsetX+(col+1)*spec.pitch)/spec.width*width));
       const y0=Math.max(0,Math.floor((spec.offsetY+row*spec.pitch)/spec.height*height)),y1=Math.min(height,Math.ceil((spec.offsetY+(row+1)*spec.pitch)/spec.height*height));
       const sums=Array(3).fill(0),bright=Array(3).fill(0),ink=Array(3).fill(0),bins=smart?new Map():null;let aSum=0,bWeight=0,inkA=0,paper=0,minLum=255,maxLum=0;
       let inkLeft=x1,inkRight=x0,inkTop=y1,inkBottom=y0;
+      const groups=art?.map(()=>({mass:0,left:x1,right:x0,top:y1,bottom:y0}));
       for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){
         const j=(y*width+x)*4,a=rgba[j+3]/255;if(!a)continue;
         const c=[rgba[j],rgba[j+1],rgba[j+2]],lum=.2126*c[0]+.7152*c[1]+.0722*c[2],weight=(.08+(Math.max(...c)/255)**2)*a;
         aSum+=a;bWeight+=weight;for(let i=0;i<3;i++){sums[i]+=c[i]*a;bright[i]+=c[i]*weight;}
         if(lum<105){inkA+=a;for(let i=0;i<3;i++)ink[i]+=c[i]*a;inkLeft=Math.min(inkLeft,x);inkRight=Math.max(inkRight,x);inkTop=Math.min(inkTop,y);inkBottom=Math.max(inkBottom,y);}if(Math.min(...c)>205)paper+=a;
         if(smart){minLum=Math.min(minLum,lum);maxLum=Math.max(maxLum,lum);const key=(c[0]>>5)*64+(c[1]>>5)*8+(c[2]>>5),bin=bins.get(key)||[0,0,0,0];bin[3]+=a;for(let i=0;i<3;i++)bin[i]+=c[i]*a;bins.set(key,bin);}
+        if(art){let nearest=0,distance=Infinity;art.forEach((v,i)=>{const d=c.reduce((sum,n,k)=>sum+(n-v.rgb[k])**2,0);if(d<distance){distance=d;nearest=i;}});const v=groups[nearest];v.mass+=a;v.left=Math.min(v.left,x);v.right=Math.max(v.right,x);v.top=Math.min(v.top,y);v.bottom=Math.max(v.bottom,y);}
       }
       const area=(x1-x0)*(y1-y0),coverage=aSum/area;
       // A continuous ink stroke can occupy much less than 35% of a cell.
@@ -91,9 +129,17 @@
       }
       // Preserve dark printed strokes against white subject areas; do not erase the white tile itself.
       if(outlines&&!dark&&inkA/aSum>=(smart?.06:.10)&&paper/aSum>=.42)c=ink.map(v=>v/inkA);
+      if(art){
+        let best=0;groups.forEach((g,i)=>{if(g.mass>groups[best].mass)best=i;});
+        // A continuous coloured stroke needs only a small part of a coarse cell.
+        // Do not promote isolated specks, or turn white gaps into connected blobs.
+        const stroke=groups.findIndex((g,i)=>art[i].stroke&&g.mass/area>=.12&&Math.max((g.right-g.left+1)/(x1-x0),(g.bottom-g.top+1)/(y1-y0))>=.65);
+        const chosen=stroke>=0?stroke:best;c=art[chosen].rgb;
+        out.outlineMask[row*cols+col]=Number(art[chosen].stroke);
+      }
       if(enhance&&dark){c=c.map((v,i)=>v*.25+bright[i]/bWeight*.75);const max=Math.max(...c),sat=max?(max-Math.min(...c))/max:0,gamma=sat>.28?.55:.85,gain=max?255*(max/255)**gamma/max:1;c=c.map(v=>v*gain);}
       const k=(row*cols+col)*4;for(let i=0;i<3;i++)out[k+i]=c[i];out[k+3]=255;
     }return out;
   }
-  const api={withoutWhite,framing,photo,subject,sample};root.WallfidSampler=api;if(typeof module!=='undefined')module.exports=api;
+  const api={withoutWhite,framing,boardFraming,photo,subject,sample};root.WallfidSampler=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
