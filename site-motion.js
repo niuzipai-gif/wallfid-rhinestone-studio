@@ -14,6 +14,7 @@
  function arrive(el,direction=1){return animate(el,[{opacity:0,transform:'translate3d('+direction*10+'px,6px,0)'},{opacity:1,transform:'translate3d(0,0,0)'}],240);}
  // Native dialog semantics and focus restoration remain in charge after a short exit.
  document.querySelectorAll('dialog').forEach(dialog=>{
+  if(dialog.id==='tutorialPhotoDialog')return;
   const close=dialog.close.bind(dialog);
   dialog.close=function(value){
    if(!dialog.open||closing.has(dialog))return;
@@ -33,7 +34,7 @@
   if(stage!==lastStage){const direction=stages.indexOf(stage)<stages.indexOf(lastStage)?-1:1;lastStage=stage;if(phone.matches)arrive(workspace.querySelector(panels[stage]),direction);}
   const targets=new Set(records.map(r=>r.target));
   targets.forEach(el=>{
-   if(el.tagName==='DIALOG'&&el.open&&!closing.has(el))animate(el,[{opacity:0,transform:'translateY(12px) scale(.98)'},{opacity:1,transform:'translateY(0) scale(1)'}],220);
+   if(el.tagName==='DIALOG'&&el.id!=='tutorialPhotoDialog'&&el.open&&!closing.has(el))animate(el,[{opacity:0,transform:'translateY(12px) scale(.98)'},{opacity:1,transform:'translateY(0) scale(1)'}],220);
    if(['customSettings','boardSettings','initialSetting'].includes(el.id)&&!el.hidden)arrive(el);
    if(el.id==='processingOverlay'&&!el.hidden)animate(el,[{opacity:0},{opacity:1}],160);
    if(el.id==='toast'&&!el.hidden)animate(el,[{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'translateY(0)'}],180);

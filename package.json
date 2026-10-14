@@ -1,0 +1,12 @@
+{
+  "name": "wallfid-rhinestone-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A browser-based numbered rhinestone pattern maker for the WALLFID 40-colour kit",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node scripts/check.cjs",
+    "manifest": "node scripts/manifest.cjs --write",
+    "verify": "npm test && node scripts/manifest.cjs"
+  }
+}
