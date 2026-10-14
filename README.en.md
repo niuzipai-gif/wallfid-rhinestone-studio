@@ -165,3 +165,5 @@ GitHub synchronisation and deployment of the separate Cloudflare brand site are 
 The palette photograph and six tutorial photographs show physical materials. Hero artwork and earlier process illustrations are generated concepts; the paper grid in a process illustration is not a usable placement template.
 
 Bodoni Moda Italic is bundled locally under the [SIL Open Font License](assets/fonts/OFL.txt). The site makes no external font requests. This repository contains the public website and its assets; selected visitor images are not added to it.
+
+The site sends anonymous visit and successful-generation events for aggregate service-improvement statistics. It does not send images, filenames or identity, uses no analytics identity cookies, offers an opt-out in the footer and honours DNT/GPC. The private statistics interface and its access key are outside this repository.

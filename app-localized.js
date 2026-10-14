@@ -91,8 +91,8 @@
     drawPattern(c,p,state.view,state.highlight,$('showGrid').checked);
     c.setAttribute('aria-label',p.rows+' rows × '+p.cols+' columns — '+(state.view==='numbers'?'numbered pattern':'stone preview')+(state.highlight===null?'':', highlighting number '+Number(palette[state.highlight].id)));
   }
-  let appliedOriginal=null;
-  function generateApplied(){const ok=generate();if(ok){appliedOriginal=state.source;updateFramingNote();}return ok;}
+  let appliedOriginal=null, analyticsSuppressed=false;
+  function generateApplied(reason="settings"){const ok=generate();if(ok){appliedOriginal=state.source;updateFramingNote();if(reason!=="initial"&&!analyticsSuppressed)document.dispatchEvent(new CustomEvent("wallfid:generation",{detail:{reason}}));}return ok;}
   let busy=false;
   const paint=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
   function updateFramingNote(){
@@ -106,7 +106,7 @@
     [$('workspace'),document.querySelector('.site-header'),document.querySelector('.mobile-action-bar'),document.querySelector('.mobile-steps')].filter(Boolean).forEach(el=>el.inert=value);
     document.dispatchEvent(new CustomEvent('wallfid:busy',{detail:{busy:value}}));
   }
-  function useExample(type){if(busy)return;if($('framingMode'))$('framingMode').value='contain';if($('enhancePhoto'))$('enhancePhoto').checked=false;$('skipBackground').checked=false;$('initialSetting').hidden=type!=='initial';state.source=makeExample(type);state.sourceName={cat:'Cat example',flower:'Flower example',heart:'Heart example',initial:'Initial '+($('initialInput').value||'A').toUpperCase()+' example'}[type];$('fileStatus').textContent='Image: '+state.sourceName;document.querySelectorAll('[data-example]').forEach(b=>b.classList.toggle('active',b.dataset.example===type));resetCrop();generateApplied();}
+  function useExample(type,reason="example"){if(busy)return;if($('framingMode'))$('framingMode').value='contain';if($('enhancePhoto'))$('enhancePhoto').checked=false;$('skipBackground').checked=false;$('initialSetting').hidden=type!=='initial';state.source=makeExample(type);state.sourceName={cat:'Cat example',flower:'Flower example',heart:'Heart example',initial:'Initial '+($('initialInput').value||'A').toUpperCase()+' example'}[type];$('fileStatus').textContent='Image: '+state.sourceName;document.querySelectorAll('[data-example]').forEach(b=>b.classList.toggle('active',b.dataset.example===type));resetCrop();generateApplied(reason);}
   async function loadImage(file){
     if(!file||busy)return;
     if(!['image/jpeg','image/png','image/webp'].includes(file.type)){toast('Please choose a JPG, PNG or WebP image.');$('imageInput').value='';return;}
@@ -126,7 +126,7 @@
       document.querySelectorAll('[data-example]').forEach(b=>b.classList.remove('active'));
       resetCrop();zoom(1);
       await processingStep('Matching your 40 colours and numbers…');
-      ready=generateApplied();
+      ready=generateApplied("upload");
       if(ready)await processingStep('Your pattern is ready.');
     }catch(e){toast(e instanceof Error&&e.message==='Please resize this image to fewer than 24 million pixels.'?e.message:'We could not read this image. Please try another file.');}
     finally{URL.revokeObjectURL(url);$('imageInput').value='';setBusy(false);}
@@ -188,7 +188,7 @@
   document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{state.view=b.dataset.view;document.querySelectorAll('[data-view]').forEach(el=>{const active=el===b;el.classList.toggle('active',active);el.setAttribute('aria-pressed',String(active));});render();if(state.view==='numbers'&&window.matchMedia('(max-width:900px)').matches){zoom(Math.max(1,state.pattern.cols*26/Math.max(200,$('canvasScroll').clientWidth)),true);}else{zoom(1);}}));
   document.querySelectorAll('[data-example]').forEach(b=>b.addEventListener('click',()=>useExample(b.dataset.example)));
   if($('framingMode'))$('framingMode').addEventListener('change',()=>{resetCrop();updateFramingNote();});if($('enhancePhoto'))$('enhancePhoto').addEventListener('change',markPending);
-  ['cropZoom','cropX','cropY'].forEach(id=>$(id).addEventListener('input',updateCrop));['skipBackground','pitch'].forEach(id=>$(id).addEventListener('input',markPending));$('resetCrop').addEventListener('click',resetCrop);$('generateButton').addEventListener('click',async()=>{if(busy)return;setBusy(true);try{await processingStep('Matching your 40 colours and numbers…');if(generateApplied()){document.dispatchEvent(new CustomEvent('wallfid:pattern-ready'));toast('Pattern and quantities updated.');}}finally{setBusy(false);}});$('showGrid').addEventListener('change',render);$('clearHighlight').addEventListener('click',()=>{state.highlight=null;renderList();render();});$('compareButton').addEventListener('click',()=>{
+  ['cropZoom','cropX','cropY'].forEach(id=>$(id).addEventListener('input',updateCrop));['skipBackground','pitch'].forEach(id=>$(id).addEventListener('input',markPending));$('resetCrop').addEventListener('click',resetCrop);$('generateButton').addEventListener('click',async()=>{if(busy)return;setBusy(true);try{await processingStep('Matching your 40 colours and numbers…');if(generateApplied("manual")){document.dispatchEvent(new CustomEvent('wallfid:pattern-ready'));toast('Pattern and quantities updated.');}}finally{setBusy(false);}});$('showGrid').addEventListener('change',render);$('clearHighlight').addEventListener('click',()=>{state.highlight=null;renderList();render();});$('compareButton').addEventListener('click',()=>{
       if(busy||!state.pattern||!appliedOriginal)return;
       const original=$('comparisonOriginal'),source=appliedOriginal,w=source.naturalWidth||source.width,h=source.naturalHeight||source.height;
       original.width=Math.max(1,Math.round(1000*w/Math.max(w,h)));original.height=Math.max(1,Math.round(1000*h/Math.max(w,h)));
@@ -215,10 +215,10 @@
   $('zoomIn').addEventListener('click',()=>zoom(state.zoom*1.5));$('zoomOut').addEventListener('click',()=>zoom(state.zoom/1.5));$('zoomReset').addEventListener('click',()=>zoom(1));
   $('imageInput').addEventListener('change',e=>loadImage(e.target.files[0]));$('dropZone').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('imageInput').click();}});['dragenter','dragover'].forEach(type=>$('dropZone').addEventListener(type,e=>{e.preventDefault();$('dropZone').classList.add('dragover');}));['dragleave','drop'].forEach(type=>$('dropZone').addEventListener(type,e=>{e.preventDefault();$('dropZone').classList.remove('dragover');if(type==='drop')loadImage(e.dataTransfer.files[0]);}));
   $('exportPng').addEventListener('click',exportPng);$('closeExport').addEventListener('click',()=>$('exportDialog').close());$('exportCsv').addEventListener('click',()=>{if(state.pending||!state.pattern.total)return;const csvCell=v=>'\"'+String(v).replaceAll('\"','\"\"')+'\"';const tr=v=>window.WallfidI18n?WallfidI18n.translate(v):v;const rows=[['Palette version','Pattern width mm','Pattern height mm','Stone diameter mm','Spacing mm','Pattern shape','Pattern style','Number','Row','Column','Photo description','Quantity','Stock status'].map(v=>csvCell(tr(v))).join(',')];state.pattern.counts.forEach((count,i)=>{if(count)rows.push([state.pattern.paletteVersion,state.pattern.width,state.pattern.height,state.pattern.diameter,state.pattern.pitch,state.pattern.shape,state.pattern.style||'full',Number(palette[i].id),palette[i].row,palette[i].column,tr(palette[i].name),count,tr('Not entered')].map(csvCell).join(','));});download(new Blob(['\ufeff'+rows.join('\r\n')],{type:'text/csv;charset=utf-8'}),'wallfid-quantities-physical-v2.csv');});$('printButton').addEventListener('click',async()=>{if(state.pending||!state.pattern.total)return;const img=preparePrint();await Promise.all(Array.from($('printArea').querySelectorAll('img')).map(img=>img.decode()));window.print();});$('helpButton').addEventListener('click',()=>$('helpDialog').showModal());$('fullGuideButton').addEventListener('click',()=>$('helpDialog').showModal());$('closeHelp').addEventListener('click',()=>$('helpDialog').close());
-  window.addEventListener('beforeprint',()=>{if(state.pattern&&!state.pending){if(!$('printArea').querySelector('img'))preparePrint();}else{const notice=document.createElement('p');notice.textContent='Changes have not been applied. Return to the workspace and select Create pattern before printing.';$('printArea').replaceChildren(notice);WallfidI18n.apply($('printArea'));}});useExample('flower');zoom(1);updateSizeNote();
+  window.addEventListener('beforeprint',()=>{if(state.pattern&&!state.pending){if(!$('printArea').querySelector('img'))preparePrint();}else{const notice=document.createElement('p');notice.textContent='Changes have not been applied. Return to the workspace and select Create pattern before printing.';$('printArea').replaceChildren(notice);WallfidI18n.apply($('printArea'));}});useExample('flower',"initial");zoom(1);updateSizeNote();
   document.querySelectorAll('[data-starter]').forEach(button=>button.addEventListener('click',()=>{
     if(button.dataset.starter==='initial')$('initialInput').value='A';
-    const selectedSize=document.querySelector('[data-size="'+button.dataset.board+'"]');selectedSize.click();useExample(button.dataset.starter);
+    const selectedSize=document.querySelector('[data-size="'+button.dataset.board+'"]');analyticsSuppressed=true;try{selectedSize.click();}finally{analyticsSuppressed=false;}useExample(button.dataset.starter);
     $('workspace').scrollIntoView({behavior:'auto',block:'start'});$('workspace').focus({preventScroll:true});
   }));
   [['flowerIdea','flower',80],['heartIdea','heart',50],['initialIdea','initial',100]].forEach(([id,type,size])=>{
