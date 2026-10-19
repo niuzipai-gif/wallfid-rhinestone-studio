@@ -33,7 +33,7 @@ The comparison uses the unmodified source image and the current applied pattern.
 - **Practical exports:** numbered PNG, colour-quantity CSV and actual-size printing, including A4 tiles for larger designs.
 - **Mobile and desktop layouts:** a Set up → Pattern → Colours flow on phones, with image upload immediately after the surface selector and before board sizes. Larger screens keep the full workspace.
 
-On phones, choose a picture before its size. Examples and image adjustments expand on demand, while grid and stone quantities sit side by side. Resizing keeps the current picture and settings.
+On phones, choose a picture before its size. Selecting an example or picture opens the pattern directly. Controls below the pattern let you switch kit boards, edit custom dimensions and change pattern style without returning to Set up. Examples and image adjustments expand on demand, while grid and stone quantities sit side by side. Resizing keeps the current picture and settings.
 
 ![Mobile image upload placed above board sizes](docs/images/mobile-upload.jpg)
 

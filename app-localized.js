@@ -92,7 +92,7 @@
     c.setAttribute('aria-label',p.rows+' rows × '+p.cols+' columns — '+(state.view==='numbers'?'numbered pattern':'stone preview')+(state.highlight===null?'':', highlighting number '+Number(palette[state.highlight].id)));
   }
   let appliedOriginal=null, analyticsSuppressed=false;
-  function generateApplied(reason="settings"){const ok=generate();if(ok){appliedOriginal=state.source;updateFramingNote();if(reason!=="initial"&&!analyticsSuppressed)document.dispatchEvent(new CustomEvent("wallfid:generation",{detail:{reason}}));}return ok;}
+  function generateApplied(reason="settings"){const ok=generate();if(ok){appliedOriginal=state.source;updateFramingNote();document.dispatchEvent(new CustomEvent('wallfid:pattern-updated',{detail:{reason}}));if(reason!=="initial"&&!analyticsSuppressed)document.dispatchEvent(new CustomEvent("wallfid:generation",{detail:{reason}}));}return ok;}
   let busy=false;
   const paint=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
   function updateFramingNote(){
@@ -106,7 +106,15 @@
     [$('workspace'),document.querySelector('.site-header'),document.querySelector('.mobile-action-bar'),document.querySelector('.mobile-steps')].filter(Boolean).forEach(el=>el.inert=value);
     document.dispatchEvent(new CustomEvent('wallfid:busy',{detail:{busy:value}}));
   }
-  function useExample(type,reason="example"){if(busy)return;if($('framingMode'))$('framingMode').value='contain';if($('enhancePhoto'))$('enhancePhoto').checked=false;$('skipBackground').checked=false;$('initialSetting').hidden=type!=='initial';state.source=makeExample(type);state.sourceName={cat:'Cat example',flower:'Flower example',heart:'Heart example',initial:'Initial '+($('initialInput').value||'A').toUpperCase()+' example'}[type];$('fileStatus').textContent='Image: '+state.sourceName;document.querySelectorAll('[data-example]').forEach(b=>b.classList.toggle('active',b.dataset.example===type));resetCrop();generateApplied(reason);}
+  function useExample(type,reason="example"){
+    if(busy)return false;
+    if($('framingMode'))$('framingMode').value='contain';if($('enhancePhoto'))$('enhancePhoto').checked=false;
+    $('skipBackground').checked=false;$('initialSetting').hidden=type!=='initial';state.source=makeExample(type);state.prepared=null;
+    state.sourceName={cat:'Cat example',flower:'Flower example',heart:'Heart example',initial:'Initial '+($('initialInput').value||'A').toUpperCase()+' example'}[type];
+    $('fileStatus').textContent='Image: '+state.sourceName;
+    document.querySelectorAll('[data-example]').forEach(b=>{const active=b.dataset.example===type;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
+    fitDimensions();updateSizeNote();resetCrop();return generateApplied(reason);
+  }
   async function loadImage(file){
     if(!file||busy)return;
     if(!['image/jpeg','image/png','image/webp'].includes(file.type)){toast('Please choose a JPG, PNG or WebP image.');$('imageInput').value='';return;}
@@ -123,7 +131,7 @@
       // Remove only edge-connected white paper; keep enclosed white subject details.
       $('skipBackground').checked=true;state.prepared=null;fitDimensions();
       $('fileStatus').textContent='Image: '+file.name;
-      document.querySelectorAll('[data-example]').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('[data-example]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false');});
       resetCrop();zoom(1);
       await processingStep('Matching your 40 colours and numbers…');
       ready=generateApplied("upload");
@@ -186,9 +194,14 @@
 
   document.querySelectorAll('[data-size]').forEach(b=>b.addEventListener('click',()=>{if(busy)return;state.size=Number(b.dataset.size);setMode('board');document.querySelectorAll('[data-size]').forEach(el=>{const active=el===b;el.classList.toggle('selected',active);el.setAttribute('aria-pressed',String(active));});}));
   document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{state.view=b.dataset.view;document.querySelectorAll('[data-view]').forEach(el=>{const active=el===b;el.classList.toggle('active',active);el.setAttribute('aria-pressed',String(active));});render();if(state.view==='numbers'&&window.matchMedia('(max-width:900px)').matches){zoom(Math.max(1,state.pattern.cols*26/Math.max(200,$('canvasScroll').clientWidth)),true);}else{zoom(1);}}));
-  document.querySelectorAll('[data-example]').forEach(b=>b.addEventListener('click',()=>useExample(b.dataset.example)));
+  document.querySelectorAll('[data-example]').forEach(b=>b.addEventListener('click',()=>{if(useExample(b.dataset.example))document.dispatchEvent(new CustomEvent('wallfid:pattern-ready'));}));
   if($('framingMode'))$('framingMode').addEventListener('change',()=>{resetCrop();updateFramingNote();});if($('enhancePhoto'))$('enhancePhoto').addEventListener('change',markPending);
-  ['cropZoom','cropX','cropY'].forEach(id=>$(id).addEventListener('input',updateCrop));['skipBackground','pitch'].forEach(id=>$(id).addEventListener('input',markPending));$('resetCrop').addEventListener('click',resetCrop);$('generateButton').addEventListener('click',async()=>{if(busy)return;setBusy(true);try{await processingStep('Matching your 40 colours and numbers…');if(generateApplied("manual")){document.dispatchEvent(new CustomEvent('wallfid:pattern-ready'));toast('Pattern and quantities updated.');}}finally{setBusy(false);}});$('showGrid').addEventListener('change',render);$('clearHighlight').addEventListener('click',()=>{state.highlight=null;renderList();render();});$('compareButton').addEventListener('click',()=>{
+  ['cropZoom','cropX','cropY'].forEach(id=>$(id).addEventListener('input',updateCrop));['skipBackground','pitch'].forEach(id=>$(id).addEventListener('input',markPending));$('resetCrop').addEventListener('click',resetCrop);$('generateButton').addEventListener('click',async()=>{
+    if(busy)return;let ready=false;setBusy(true);
+    try{await processingStep('Matching your 40 colours and numbers…');ready=generateApplied("manual");}
+    finally{setBusy(false);}
+    if(ready){document.dispatchEvent(new CustomEvent('wallfid:pattern-ready'));toast('Pattern and quantities updated.');}
+  });$('showGrid').addEventListener('change',render);$('clearHighlight').addEventListener('click',()=>{state.highlight=null;renderList();render();});$('compareButton').addEventListener('click',()=>{
       if(busy||!state.pattern||!appliedOriginal)return;
       const original=$('comparisonOriginal'),source=appliedOriginal,w=source.naturalWidth||source.width,h=source.naturalHeight||source.height;
       original.width=Math.max(1,Math.round(1000*w/Math.max(w,h)));original.height=Math.max(1,Math.round(1000*h/Math.max(w,h)));
@@ -224,6 +237,6 @@
   [['flowerIdea','flower',80],['heartIdea','heart',50],['initialIdea','initial',100]].forEach(([id,type,size])=>{
     const spec=gridSpec(size,3),source=makeExample(type),sample=document.createElement('canvas');sample.width=sample.height=spec.n;const context=sample.getContext('2d');context.drawImage(source,0,0,spec.n,spec.n);const pattern=quantize(context.getImageData(0,0,spec.n,spec.n).data,spec,false);drawPattern($(id),pattern,'drills');
   });
-  $('initialInput').addEventListener('input',()=>{const letter=$('initialInput').value.toUpperCase();if(/^[A-Z]$/.test(letter)){useExample('initial');}else{markPending();if(letter)toast('Please choose one letter from A to Z.');}});
+  $('initialInput').addEventListener('input',()=>{const letter=$('initialInput').value.toUpperCase();if(/^[A-Z]$/.test(letter)){useExample('initial','settings');}else{markPending();if(letter)toast('Please choose one letter from A to Z.');}});
 
 })();

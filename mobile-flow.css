@@ -52,4 +52,19 @@
   .image-options>summary{min-height:50px;font-size:16px;color:#5e3b79}
   .image-options>.image-framing{border-top:1px solid #e4d9ee;margin:0 0 18px;padding-top:15px}
   .image-options .final-setting{margin-bottom:14px}
+  .preview-settings{margin:16px 0 0;padding:0 14px;border:1px solid #dfd0ed;border-radius:14px;background:#f5effc}
+  .preview-settings>summary{display:flex;align-items:center;justify-content:space-between;min-height:50px;gap:12px;list-style:none;cursor:pointer;font-size:16px;font-weight:600;color:#6032a1}
+  .preview-settings>summary::-webkit-details-marker{display:none}
+  .preview-settings>summary span{font-size:23px;font-weight:400}
+  .preview-settings[open]>summary span{transform:rotate(45deg)}
+  #previewSizeControls>.pattern-type>h3,#previewSizeControls>.pattern-type>.hint,#previewSizeControls>#boardSettings>.section-title,#previewSizeControls>#boardSettings>.hint{display:none}
+  #previewSizeControls>.setting-section{margin:0 0 16px}
+  #previewSizeControls .size-options button{height:72px}
+  #previewSizeControls .size-options strong{font-size:23px}
+  #previewSizeControls .pattern-mode button{font-size:14px;min-height:44px}
+  #previewSizeControls .initial-setting{padding:12px 0 16px}
+  #previewSizeControls .style-budget{margin-bottom:0}
+  #previewSizeControls #customSettings .section-title{margin-top:14px}
+  #previewApply{width:100%;min-height:46px;margin:0 0 15px;font-size:16px;justify-content:center}
+  #previewSizeControls input,#previewSizeControls select{font-size:16px}
 }
