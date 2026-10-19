@@ -1,5 +1,7 @@
 .mobile-only{display:none}.crop-disclosure>summary,.box-disclosure>summary{display:none}.crop-disclosure{border:0}.box-disclosure{min-width:0}
 .canvas-scroll:not(.zoomed){overflow:hidden}
+.image-options>summary,.example-disclosure>summary{display:none}
+.image-options{border:0}.example-disclosure{border:0}
 @media(min-width:901px) and (max-width:1200px){.box-disclosure{grid-column:1;grid-row:2/5}.materials>.material-header{grid-column:2;grid-row:2}.materials>.color-list{grid-column:2;grid-row:3/5}.materials>.export-actions{grid-column:1;grid-row:5}.materials>.sample-note{grid-column:2;grid-row:5}}
 @media(max-width:900px){
   :root{background:#fcfaff;font-size:16px}body{background:#fcfaff;padding-bottom:calc(96px + env(safe-area-inset-bottom))}main{padding:0 18px;max-width:660px}.mobile-only{display:block}
@@ -19,3 +21,35 @@
 }
 @media(max-width:370px){main{padding:0 14px}.site-header{padding:0 16px}.mobile-intro{padding:14px;min-height:126px;gap:0}.mobile-intro h1{font-size:27px}.mobile-intro span{font-size:12px}.mobile-intro img{width:90px;margin-right:-22px}.mobile-intro p{font-size:9px}.mobile-steps button{font-size:13px;gap:5px}.mobile-steps button span{width:21px;height:21px}.examples{gap:5px;flex-wrap:wrap}.examples>span{flex-basis:100%;margin-bottom:2px}.examples button{padding:7px 10px}.preview-tools{flex-wrap:wrap}.zoom-tools{margin-left:auto}.box-cell{height:36px}.compartment-number{font-size:11px;min-width:16px}.board-stage-label{font-size:9px}.stats strong{font-size:25px}}
 @media print{.mobile-steps,.mobile-action-bar,.mobile-intro,.mobile-help{display:none!important}body{padding:0}}
+
+/* Mobile setup: choose a picture before sizes, with optional tools on demand. */
+@media(max-width:900px){
+  .settings>.pattern-type{margin-bottom:16px}
+  .settings>.upload-setting{padding:15px;background:#f4eefb;border:1px solid #e3d6f1;border-radius:16px;margin-bottom:22px}
+  .upload-setting>.section-title{margin-bottom:10px;gap:8px}
+  .upload-setting>.section-title h3{font-size:17px}
+  .upload-setting>.section-title>span{font-size:11px;white-space:nowrap;color:#725887}
+  .upload-setting .upload-zone{min-height:100px;padding:14px 10px;border:1px dashed #b99bd6;border-radius:11px;gap:4px}
+  .upload-setting .upload-zone:focus-visible{outline:3px solid #7542b4;outline-offset:3px}
+  .upload-setting .upload-zone strong{font-size:17px;color:#6032a1}
+  .upload-setting .upload-zone small{font-size:12px}
+  .upload-setting .file-status{font-size:12px;line-height:1.5;margin:9px 0 0;color:#725887}
+  .example-disclosure{margin-top:7px;border-top:1px solid #e1d4ed}
+  .example-disclosure>summary,.image-options>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;font-size:14px;font-weight:550;color:#6c438d;list-style:none;cursor:pointer}
+  .example-disclosure>summary::-webkit-details-marker,.image-options>summary::-webkit-details-marker{display:none}
+  .example-disclosure>summary span,.image-options>summary span{font-size:23px;font-weight:400}
+  .example-disclosure[open]>summary span,.image-options[open]>summary span{transform:rotate(45deg)}
+  .upload-setting .examples{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding-bottom:2px}
+  .upload-setting .examples>span{display:none}
+  .upload-setting .examples button{font-size:14px;padding:8px 3px;min-height:44px;overflow-wrap:anywhere}
+  .upload-setting .initial-setting{margin:12px 0 0;padding-top:12px;border-top:1px solid #e1d4ed}
+  .settings>.setup-estimate{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:10px;margin:0 0 20px}
+  .setup-estimate>#sizeEstimate,.setup-estimate>.size-quantity{margin:0;padding:10px 12px;min-height:64px;display:flex;align-items:center;line-height:1.5;font-size:12px}
+  .setup-estimate>.size-quantity{justify-content:center;gap:8px;flex-wrap:wrap;align-content:center}
+  .setup-estimate>.size-quantity strong{font-size:25px;line-height:1.1}
+  .setup-estimate>.size-quantity span{font-size:12px}
+  .settings>.image-options{margin:0 0 18px;border:1px solid #e1d5ed;border-radius:12px;padding:0 14px;background:#fff}
+  .image-options>summary{min-height:50px;font-size:16px;color:#5e3b79}
+  .image-options>.image-framing{border-top:1px solid #e4d9ee;margin:0 0 18px;padding-top:15px}
+  .image-options .final-setting{margin-bottom:14px}
+}
